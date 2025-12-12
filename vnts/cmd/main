@@ -18,7 +18,7 @@ CMD="${TRIM_APPDEST}/bin/vnts "
 [ -z "$VNTS_port" ] || CMD="${CMD} -p ${VNTS_port}"
 [ "$VNTS_token" = "true" ] || CMD="${CMD} --disable-group-list"
 [ -z "$VNTS_cmd" ] || CMD="${CMD} ${VNTS_cmd}"
-[ "$VNTS_log" = "true" ] && CMD="${CMD} -l console"
+[ "$VNTS_log" = "true" ] && CMD="${CMD} -l ${CONFIG_DIR}"
 
 log_msg() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')]: INFO $1" >> ${LOG_FILE}
