@@ -1,0 +1,16 @@
+appname               = vnts
+version               = 1.2.13
+display_name          = VNTS
+desc                  = <a href="https://github.com/vnt-dev/vnts" target="_blank">VNTS</a> 是VNT的服务端
+arch                  = x86_64
+source                = thirdparty
+maintainer            = vnt-dev
+maintainer_url        = https://github.com/vnt-dev/vnts
+distributor           = 8267
+distributor_url       = https://github.com/lmq8267/vnt_fpk
+
+desktop_uidir         = ui
+desktop_applaunchname = vnts.Application
+
+service_port          = 29870
+checkport             = true
