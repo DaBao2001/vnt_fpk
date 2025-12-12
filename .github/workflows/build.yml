@@ -6,7 +6,7 @@ on:
       vnt:
         description: '打包VNT客户端fpk包'
         required: true
-        default: true
+        default: false
         type: boolean
       vnts:
         description: '打包VNTS服务端fpk包'
