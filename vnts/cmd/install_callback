@@ -1,5 +1,25 @@
 #!/bin/bash
 
 ### This script is called after the user installs the application.
+cputype=$(uname -ms | tr ' ' '_' | tr '[A-Z]' '[a-z]')
+[ -n "$(echo $cputype | grep -E "linux.*armv.*")" ] && cpucore="arm"
+[ -n "$(echo $cputype | grep -E "linux.*armv7.*")" ] && [ -n "$(cat /proc/cpuinfo | grep vfp)" ] && cpucore="armv7"
+[ -n "$(echo $cputype | grep -E "linux.*aarch64.*|linux.*armv8.*")" ] && cpucore="aarch64"
+[ -n "$(echo $cputype | grep -E "linux.*86_64.*")" ] && cpucore="x86_64"
+
+if [ -z "$cpucore" ] ; then
+	echo "未知架构，无法安装！" > "${TRIM_TEMP_LOGFILE}"
+	exit 1
+fi
+
+mv -f "${TRIM_APPDEST}/bin/vnts_{cpucore}" "${TRIM_APPDEST}/bin/vnts"
+rm -f "${TRIM_APPDEST}/bin/vnts_*"
+
+[ -x "${TRIM_APPDEST}/bin/vnts" ] || chmod +x "${TRIM_APPDEST}/bin/vnts"
+
+if [[ "$(${TRIM_APPDEST}/bin/vnts -h 2>&1 | wc -l)" -lt 3 ]] ; then
+	echo "程序与架构不匹配，无法运行！" > "${TRIM_TEMP_LOGFILE}"
+	exit 1
+fi
 
 exit 0

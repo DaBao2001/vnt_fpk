@@ -36,6 +36,22 @@
             },
             {
                 "type": "text",
+                "field": "vnts_web_port",
+                "label": "WEB端口",
+                "initValue": "29870",
+                "rules": [
+                    {
+                        "required": true,
+                        "message": "请输入端口号"
+                    },
+                    {
+                        "pattern": "^[0-9]+$",
+                        "message": "端口号必须是数字"
+                    }
+                ]
+            },
+            {
+                "type": "text",
                 "field": "vnts_app_port",
                 "label": "服务端口",
                 "initValue": "29872",
