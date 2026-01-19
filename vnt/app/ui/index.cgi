@@ -5,17 +5,6 @@ VNT_bin="/var/apps/vnt/target/bin/vnt-cli"
 VNT_script="/var/apps/vnt/cmd/main"    
 VNT_log="/var/apps/vnt/var/info.log"    
   
-if [[ "${REQUEST_URI}" =~ config\.html$ ]]; then    
-    echo "Content-Type: text/html; charset=UTF-8"    
-    echo ""    
-    if [[ -f "config.html" ]]; then    
-        cat "config.html"    
-    else    
-        echo "<html><body><h1>配置文件生成页面不存在</h1></body></html>"    
-    fi    
-    exit 0    
-fi    
-  
 LOG_TEXT=""    
 if [[ -f "/var/apps/vnt/var/info.log" ]]; then    
     LOG_TEXT=$(cat "/var/apps/vnt/var/info.log" | sed 's/</\&lt;/g;s/>/\&gt;/g')    
@@ -33,7 +22,19 @@ if [[ -n "$POST_DATA" ]]; then
     ACTION=$(url_decode "$ACTION")    
     CONFIG_CONTENT=$(echo "$POST_DATA" | sed -n 's/.*config=\(.*\)/\1/p')    
     CONFIG_CONTENT=$(url_decode "$CONFIG_CONTENT")    
-fi    
+fi
+
+DECODED_URI=$(url_decode "$REQUEST_URI")
+if [[ "${DECODED_URI}" == *config.html ]]; then   
+    echo "Content-Type: text/html; charset=UTF-8"    
+    echo ""    
+    if [[ -f "/var/apps/vnt/target/ui/config.html" ]]; then    
+        cat "/var/apps/vnt/target/ui/config.html"
+    else    
+        echo "<html><body><h1>配置文件生成页面不存在</h1></body></html>"
+    fi
+    exit 0    
+fi
   
 # API 端点处理  
 if [[ "$ACTION" == "api_status" ]]; then      
@@ -47,7 +48,7 @@ if [[ "$ACTION" == "api_status" ]]; then
           
         # 从文件读取启动时间  
         if [[ -f "/var/apps/vnt/var/vntcli_time" ]]; then  
-            start_time=$(cat /var/apps/vnt/var/vntcli_time)  
+            start_time=$(cat /var/apps/vnt/var/vntcli_time)
             if [[ -n "$start_time" ]]; then  
                 time=$(( $(date +%s) - start_time ))  
                 day=$((time / 86400))  
@@ -116,7 +117,7 @@ fi
 if [[ "$ACTION" == "api_log" ]] || [[ "$ACTION" == "api_raw_log" ]]; then    
     LOG_TEXT=""    
     if [[ -f "/var/apps/vnt/var/info.log" ]]; then    
-        LOG_TEXT=$(cat "/var/apps/vnt/var/info.log")    
+        LOG_TEXT=$(cat "/var/apps/vnt/var/info.log")
     fi    
     echo "Content-Type: text/plain; charset=UTF-8"   
     echo ""
@@ -144,9 +145,9 @@ echo "Content-Type: text/html; charset=UTF-8"
 echo ""
   
 if [[ "$ACTION" == "save_config" ]]; then    
-    OLD_CONFIG=$(cat "$VNT_config" 2>/dev/null)    
+    OLD_CONFIG=$(cat "$VNT_config" 2>/dev/null)
     echo "$CONFIG_CONTENT" > "$VNT_config"    
-    NEW_CONFIG=$(cat "$VNT_config" 2>/dev/null)    
+    NEW_CONFIG=$(cat "$VNT_config" 2>/dev/null)
         
     if [[ "$OLD_CONFIG" != "$NEW_CONFIG" ]]; then    
         $VNT_script stop >/dev/null 2>&1    
@@ -168,7 +169,7 @@ pgrep -f "$VNT_bin" >/dev/null 2>&1 && RUNNING="true"
   
 CONFIG_TEXT=""    
 if [[ -s "$VNT_config" ]]; then    
-    CONFIG_TEXT=$(cat "$VNT_config")    
+    CONFIG_TEXT=$(cat "$VNT_config")
 fi    
   
 INFO_TEXT="正在获取中..."    
@@ -176,7 +177,7 @@ ALL_TEXT="正在获取中..."
 LIST_TEXT="正在获取中..."    
 ROUTE_TEXT="正在获取中..."    
   
-cat <<EOF    
+cat <<EOF
 <!DOCTYPE html>    
 <html lang="zh">    
 <head>    
@@ -359,7 +360,7 @@ $(if [ "$RUNNING" = "true" ]; then echo "停止"; else echo "启动"; fi)
 <div class="card">    
 <div style="display: flex; justify-content: space-between; align-items: center;">    
     <h2 style="margin: 0;">配置文件</h2>    
-    <a href="config.html" target="_blank"    
+    <a href="/cgi/ThirdParty/vnt/index.cgi?config.html" target="_blank"    
        style="display: inline-block; padding: 10px 16px; border: none; border-radius: 10px;    
               cursor: pointer; background: linear-gradient(135deg,#fa709a,#fee140);    
               color: white; font-size: 14px; text-decoration: none;    
@@ -371,7 +372,7 @@ $(if [ "$RUNNING" = "true" ]; then echo "停止"; else echo "启动"; fi)
 </div>    
 <form method="post">    
 <input type="hidden" name="action" value="save_config">    
-<textarea name="config">$CONFIG_TEXT</textarea>    
+<textarea name="config" placeholder="🤣 糟啦,配置文件为空，会无法启动喔，快去生成一个配置文件保存进来吧~">$CONFIG_TEXT</textarea>    
 <br><br>    
 <button type="submit">保存配置</button>    
 </form>    
@@ -693,6 +694,7 @@ async function updateAll() {
                   .replace(/Public Ips/g, '外网IP')
                   .replace(/Local Ip/g, '内网IP:')
                   .replace(/IPv6/g, 'IPv6地址')
+                  .replace(/No other devices found/g, '没有其他客户端设备')
                   .replace(/Resource temporarily unavailable/g, '资源暂时不可用，请重启插件！');
 
         // 为连接状态添加颜色  
@@ -737,6 +739,7 @@ async function updateList() {
                   .replace(/Status/g, '连接状态')  
                   .replace(/P2P/g, '直连')  
                   .replace(/Relay/g, '中继')
+                  .replace(/No other devices found/g, '没有其他客户端设备')
                   .replace(/Resource temporarily unavailable/g, '资源暂时不可用，请重启插件！')
                   .replace(/Rt/g, '响应时间(ms)');  
           
@@ -783,6 +786,7 @@ async function updateRoute() {
                   .replace(/Next Hop/g, '下一跳')  
                   .replace(/Metric/g, '跳数') 
                   .replace(/Rt/g, '响应时间(ms)')
+                  .replace(/No route found/g, '没有路由信息')
                   .replace(/Resource temporarily unavailable/g, '资源暂时不可用，请重启插件！')
                   .replace(/Interface/g, '接口地址');
 

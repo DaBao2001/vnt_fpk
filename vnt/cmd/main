@@ -29,8 +29,9 @@ start_process() {
     [ -f "${VNT_config}" ] || touch "${VNT_config}"
 
     # 配置文件为空则不启动
-    if [[ ! -s "${VNT_config}" ]]; then
-        log_msg "配置文件 ${VNT_config} 为空，请填写配置文件后重新启动！"
+    VNT_TOKEN="$(sed -n 's/^[[:space:]]*token:[[:space:]]*\([^#[:space:]]\+\).*/\1/p' "$VNT_config" 2>/dev/null | tr -d '\r\n')"
+    if [[ -z "$VNT_TOKEN" ]]; then
+        log_msg "⚠️ token缺失！配置文件中必须包含 token 才能启动！"
         return 0
     fi
 
