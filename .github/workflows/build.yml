@@ -147,7 +147,7 @@ jobs:
         rm -rf app/bin/vnts_a*
         sed -i '/^platform[[:space:]]*=/d' manifest
         sed -i '/^source[[:space:]]*=/i platform              = x86' manifest
-        sed -i '/^source[[:space:]]*=/i arch                  = x86' manifes
+        sed -i '/^source[[:space:]]*=/i arch                  = x86' manifest
         tar -czf app.tgz --transform='s,app/,,g' app/bin app/ui
         tar -czf vnts.fpk --exclude='app' *
         mkdir -p /opt/fnpack_vnt
